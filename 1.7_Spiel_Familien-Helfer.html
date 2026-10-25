@@ -1,0 +1,217 @@
+<title>Familien-Helfer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: one "Amtsschalter" desk — a stack of family files (Akten) on the left, the help stamps on the right; one case at a time. */
+:root{
+  --paper:#f6f1e4; --desk:#e9dfc8; --card:#fffdf7; --ink:#2f2b2b; --muted:#6f6458;
+  --green:#52803c; --green-soft:#dbe8d2; --brown:#8d6e63; --brown-soft:#efe3d6; --ochre:#c98f2a; --line:#d4c6b0;
+  --display:'Patrick Hand','Comic Sans MS',cursive; --body:Andika,'Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#23201b; --desk:#1b1915; --card:#2d2924; --ink:#f1ebdf; --muted:#b9ad9c;
+  --green:#8dbb72; --green-soft:#2f3d27; --brown:#c4a596; --brown-soft:#3a2f29; --ochre:#e0b05a; --line:#4a4238; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#23201b; --desk:#1b1915; --card:#2d2924; --ink:#f1ebdf; --muted:#b9ad9c;
+  --green:#8dbb72; --green-soft:#2f3d27; --brown:#c4a596; --brown-soft:#3a2f29; --ochre:#e0b05a; --line:#4a4238; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--desk);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 28px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,44px);margin:0;line-height:1;color:var(--brown);text-wrap:balance}
+h1 small{display:block;font-family:var(--body);font-size:14px;color:var(--muted);margin-top:6px;letter-spacing:.02em}
+.tabs{display:flex;gap:6px;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:4px}
+.tabs button{border:0;background:none;font:inherit;font-size:15px;padding:7px 14px;border-radius:999px;color:var(--muted);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--green);color:var(--card)}
+button:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;font-size:15px;color:var(--muted)}
+.mode{display:flex;gap:6px}
+.mode button{font:inherit;font-size:14px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:5px 12px;border-radius:8px;cursor:pointer}
+.mode button[aria-pressed="true"]{border-color:var(--green);background:var(--green-soft);font-weight:700}
+.progress{display:flex;gap:5px;flex-wrap:wrap}
+.progress i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line);background:var(--card)}
+.progress i.ok{background:var(--green);border-color:var(--green)}
+.progress i.no{background:var(--brown);border-color:var(--brown)}
+.progress i.now{border-color:var(--ochre);border-width:3px}
+.desk{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.desk{grid-template-columns:1fr}}
+.file{background:var(--card);border:1.5px solid var(--line);border-radius:6px 14px 14px 14px;padding:20px 22px 22px;position:relative;
+  box-shadow:6px 6px 0 var(--paper),6px 6px 0 1.5px var(--line)}
+.file .tab{position:absolute;top:-1.5px;left:22px;transform:translateY(-100%);background:var(--card);border:1.5px solid var(--line);border-bottom:0;
+  border-radius:8px 8px 0 0;padding:3px 12px;font-size:13px;color:var(--muted);letter-spacing:.05em;font-variant-numeric:tabular-nums}
+.who{display:flex;gap:14px;align-items:center}
+.who .face{font-size:46px;line-height:1;flex:none;width:64px;height:64px;display:grid;place-items:center;background:var(--brown-soft);border-radius:50%}
+.who h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0;line-height:1.05}
+.story{margin:14px 0 4px;font-size:18px}
+.q{font-weight:700;margin-top:12px}
+.speak{margin-top:12px;font:inherit;font-size:14px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:5px 12px;cursor:pointer}
+.stamp{position:absolute;right:18px;bottom:16px;transform:rotate(-9deg) scale(.6);opacity:0;pointer-events:none;
+  border:4px double currentColor;border-radius:8px;padding:4px 12px;font-family:var(--display);font-size:28px;letter-spacing:.08em;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s}
+.stamp.show{transform:rotate(-9deg) scale(1);opacity:.9}
+.stamp.ok{color:var(--green)} .stamp.no{color:var(--brown)}
+@media (prefers-reduced-motion:reduce){.stamp{transition:none}}
+.helps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.helps.three{grid-template-columns:1fr}
+.help{display:flex;gap:10px;align-items:center;text-align:left;font:inherit;font-size:16px;line-height:1.25;background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;min-height:64px}
+.help:hover{border-color:var(--green)}
+.help .ic{font-size:28px;flex:none}
+.help b{display:block}
+.help span.s{font-size:13px;color:var(--muted)}
+.help.right{border-color:var(--green);background:var(--green-soft)}
+.help.wrong{border-color:var(--brown);background:var(--brown-soft)}
+.help:disabled{cursor:default}
+.feedback{margin-top:4px;background:var(--paper);border:1.5px dashed var(--line);border-radius:12px;padding:12px 14px}
+.feedback p{margin:0 0 8px}
+.calc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.calc input{font:inherit;width:110px;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.go{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 18px;background:var(--green);color:var(--card);cursor:pointer}
+.go.alt{background:var(--brown)}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.lex{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lex article{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px}
+.lex h3{font-family:var(--display);font-weight:400;font-size:24px;margin:0 0 4px;display:flex;gap:8px;align-items:center}
+.lex p{margin:0;font-size:15.5px}
+.lex .amt{margin-top:6px;font-size:13px;color:var(--muted)}
+.end{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:24px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.end h2{font-family:var(--display);font-weight:400;font-size:38px;margin:0;color:var(--green)}
+.stars{font-size:40px;letter-spacing:6px}
+.pro{max-width:60ch;text-align:left;background:var(--green-soft);border-radius:12px;padding:12px 16px}
+.note{font-size:12.5px;color:var(--muted);text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Familien-Helfer<small>GPG 5 · 1.7 Familienförderung</small></h1>
+    <nav class="tabs" aria-label="Bereich">
+      <button id="tabPlay" aria-pressed="true">Fälle lösen</button>
+      <button id="tabLex" aria-pressed="false">Hilfen-Lexikon</button>
+    </nav>
+  </header>
+
+  <section id="play">
+    <div class="bar">
+      <div class="mode" role="group" aria-label="Schwierigkeit">
+        <button id="mBasis" aria-pressed="true">Basis</button>
+        <button id="mProfi" aria-pressed="false">⭐ Profi</button>
+      </div>
+      <div class="progress" id="progress" aria-label="Fortschritt"></div>
+      <span id="score" style="font-variant-numeric:tabular-nums"></span>
+    </div>
+    <div class="desk" id="desk" style="margin-top:22px"></div>
+  </section>
+
+  <section id="lex" hidden>
+    <p class="label">Diese Hilfen gibt es für Familien</p>
+    <div class="lex" id="lexList"></div>
+    <p class="note" style="margin-top:14px">Beträge: Stand 2026. Kindergeld: 259 € pro Kind und Monat.</p>
+  </section>
+</div>
+
+<script>
+const HELPS = {
+  mutter:{ic:"🤰",name:"Mutterschaftsgeld",s:"vor und nach der Geburt",lex:"Eine Mutter, die arbeitet, hat Mutterschutz: 6 Wochen vor und 8 Wochen nach der Geburt. In dieser Zeit bekommt sie Mutterschaftsgeld."},
+  eltern:{ic:"🍼",name:"Elterngeld",s:"Eltern bleiben beim Baby",lex:"Mama oder Papa bleibt nach der Geburt zu Hause und versorgt das Baby (Elternzeit). Dafür gibt es Elterngeld, weil der Lohn fehlt."},
+  kinder:{ic:"💶",name:"Kindergeld",s:"für jedes Kind",lex:"Für jedes Kind bis 18 Jahre bekommen die Eltern jeden Monat Kindergeld. Ist das Kind in einer Ausbildung oder im Studium, gibt es Kindergeld bis 25.",amt:"2026: 259 € pro Kind und Monat"},
+  unterhalt:{ic:"✉️",name:"Unterhaltsvorschuss",s:"wenn ein Elternteil nicht zahlt",lex:"Leben die Eltern getrennt, muss der andere Elternteil Geld (Unterhalt) für das Kind zahlen. Kommt das Geld nicht, springt das Amt mit dem Unterhaltsvorschuss ein."},
+  zuschlag:{ic:"🧾",name:"Kinderzuschlag",s:"Eltern verdienen wenig",lex:"Eltern arbeiten, aber das Geld reicht kaum für die Kinder. Dann können sie zusätzlich zum Kindergeld einen Kinderzuschlag bekommen."},
+  bildung:{ic:"🎒",name:"Bildungspaket",s:"Klassenfahrt, Verein, Schulsachen",lex:"Familien mit wenig Geld bekommen Hilfe für Klassenfahrten, Ausflüge, Schulsachen, Mittagessen und den Sportverein."},
+  familie:{ic:"👵",name:"Hilfe von Verwandten",s:"Oma, Opa, Tante, Onkel",lex:"Nicht jede Hilfe kommt vom Staat. Großeltern, Tanten und Onkel helfen oft im Alltag, z. B. bei der Kinderbetreuung."}
+};
+const CASES = [
+  {face:"🤰",who:"Frau Kaya",story:"Frau Kaya arbeitet in einer Bäckerei. In sechs Wochen kommt ihr Baby. Ab jetzt ist sie im Mutterschutz und arbeitet nicht mehr.",right:"mutter",basis:["mutter","kinder","bildung"],why:"Kurz vor und nach der Geburt bekommt eine Mutter Mutterschaftsgeld."},
+  {face:"👨‍🍼",who:"Familie Hofmann",story:"Baby Mia ist da! Papa Tom bleibt ein Jahr zu Hause und kümmert sich um Mia. Sein Lohn fehlt jetzt.",right:"eltern",basis:["eltern","unterhalt","familie"],why:"Wer nach der Geburt beim Baby zu Hause bleibt, bekommt Elterngeld."},
+  {face:"👧",who:"Familie Bauer",story:"Familie Bauer hat drei Kinder: Lena (4), Paul (9) und Sophie (12). Jeden Monat bekommen die Eltern Geld vom Staat für die Kinder.",right:"kinder",basis:["kinder","mutter","zuschlag"],why:"Für jedes Kind bis 18 gibt es Kindergeld.",calc:{q:"Wie viel Kindergeld bekommt Familie Bauer im Monat? (259 € pro Kind)",a:777}},
+  {face:"👩‍👦",who:"Jonas und seine Mama",story:"Jonas lebt bei seiner Mama. Seine Eltern sind getrennt. Der Papa müsste Geld für Jonas zahlen, aber er zahlt nicht.",right:"unterhalt",basis:["unterhalt","eltern","bildung"],why:"Zahlt ein Elternteil keinen Unterhalt, hilft das Amt mit dem Unterhaltsvorschuss."},
+  {face:"🎒",who:"Emil",story:"Emils Klasse fährt ins Schullandheim. Die Fahrt kostet 120 €. Emils Familie hat sehr wenig Geld.",right:"bildung",basis:["bildung","mutter","kinder"],why:"Für Klassenfahrten gibt es Geld aus dem Bildungspaket."},
+  {face:"👷",who:"Familie Nowak",story:"Beide Eltern arbeiten. Trotzdem reicht das Geld am Monatsende kaum für Essen und Kleidung der zwei Kinder.",right:"zuschlag",basis:["zuschlag","eltern","familie"],why:"Verdienen Eltern wenig, können sie zusätzlich zum Kindergeld einen Kinderzuschlag bekommen."},
+  {face:"🧑‍🔧",who:"Ben (17)",story:"Ben ist 17 und macht eine Ausbildung zum Kfz-Mechatroniker. Er wohnt noch zu Hause. Bekommen seine Eltern noch Geld für ihn?",right:"kinder",basis:["kinder","unterhalt","mutter"],why:"Ja! Ben ist unter 18. Und solange er in Ausbildung ist, gibt es Kindergeld sogar bis 25."},
+  {face:"👵",who:"Familie Schmid",story:"Mama und Papa arbeiten beide bis 17 Uhr. Der Kindergarten schließt um 15 Uhr. Wer holt die kleine Hanna ab?",right:"familie",basis:["familie","zuschlag","eltern"],why:"Hier hilft oft die Familie: Oma oder Opa holen Hanna ab."}
+];
+const ALL = Object.keys(HELPS);
+let mode = "basis", i = 0, res = [], answered = false;
+
+const $ = id => document.getElementById(id);
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+let order = shuffle(CASES.map((_,k)=>k));
+
+function speak(text){
+  try{ if(!('speechSynthesis' in window)) return; speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang="de-DE"; u.rate=0.92; speechSynthesis.speak(u);}catch(e){}
+}
+function progress(){
+  $("progress").innerHTML = order.map((_,k)=>`<i class="${res[k]===true?'ok':res[k]===false?'no':''}${k===i&&i<order.length?' now':''}"></i>`).join("");
+  const ok = res.filter(x=>x===true).length;
+  $("score").textContent = `${ok} von ${order.length} richtig`;
+}
+function render(){
+  progress();
+  if(i>=order.length) return finish();
+  const c = CASES[order[i]]; answered=false;
+  const opts = mode==="basis" ? shuffle(c.basis) : ALL;
+  $("desk").innerHTML = `
+   <div class="file">
+     <span class="tab">Akte ${String(i+1).padStart(2,"0")} / ${String(order.length).padStart(2,"0")}</span>
+     <div class="who"><div class="face" aria-hidden="true">${c.face}</div><h2>${c.who}</h2></div>
+     <p class="story">${c.story}</p>
+     <p class="q">Welche Hilfe passt?</p>
+     <button class="speak" id="read">🔊 Vorlesen</button>
+     <div class="stamp" id="stamp"></div>
+   </div>
+   <div>
+     <p class="label">${mode==="basis"?"Wähle aus 3 Hilfen":"Wähle aus allen Hilfen"}</p>
+     <div class="helps ${mode==="basis"?"three":""}" id="helps">
+      ${opts.map(k=>`<button class="help" data-k="${k}"><span class="ic" aria-hidden="true">${HELPS[k].ic}</span><span><b>${HELPS[k].name}</b><span class="s">${HELPS[k].s}</span></span></button>`).join("")}
+     </div>
+     <div id="fb"></div>
+   </div>`;
+  $("read").onclick=()=>speak(c.who+". "+c.story+" Welche Hilfe passt?");
+  document.querySelectorAll(".help").forEach(b=>b.onclick=()=>choose(b,c));
+}
+function choose(btn,c){
+  if(answered) return; answered=true;
+  const ok = btn.dataset.k===c.right;
+  document.querySelectorAll(".help").forEach(b=>{b.disabled=true; if(b.dataset.k===c.right) b.classList.add("right");});
+  if(!ok) btn.classList.add("wrong");
+  res[i]=ok;
+  const st=$("stamp"); st.textContent= ok?"BEWILLIGT":"NOCH MAL PRÜFEN"; st.className="stamp show "+(ok?"ok":"no");
+  let html = `<div class="feedback"><p><b>${ok?"Richtig!":"Nicht ganz."}</b> ${c.why}</p>`;
+  if(mode==="profi" && c.calc){
+    html += `<div class="calc"><label for="calcIn">${c.calc.q}</label><input id="calcIn" inputmode="numeric" placeholder="€"><button class="go alt" id="calcBtn">Prüfen</button></div><p id="calcFb"></p>`;
+  }
+  html += `<button class="go" id="next">${i+1<order.length?"Nächste Akte →":"Fertig →"}</button></div>`;
+  $("fb").innerHTML=html;
+  if($("calcBtn")) $("calcBtn").onclick=()=>{
+    const v=parseInt(($("calcIn").value||"").replace(/\D/g,""),10);
+    $("calcFb").textContent = v===c.calc.a ? "Super gerechnet: 3 × 259 € = 777 €." : "Tipp: 3 Kinder × 259 € = ?";
+  };
+  progress();
+  $("next").onclick=()=>{i++; render(); window.scrollTo({top:0,behavior:"smooth"});};
+  $("next").focus({preventScroll:true});
+}
+function finish(){
+  const ok=res.filter(x=>x===true).length, n=order.length;
+  const stars = ok===n?3: ok>=n-2?2: ok>=n/2?1:0;
+  $("desk").innerHTML = `<div class="end" style="grid-column:1/-1">
+    <h2>Alle Akten bearbeitet!</h2>
+    <div class="stars" aria-label="${stars} von 3 Sternen">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
+    <p>Du hast <b>${ok} von ${n}</b> Familien die richtige Hilfe gegeben.</p>
+    <div class="pro"><b>⭐ Profi-Aufgabe:</b> Gestalte zu zweit ein kleines Plakat „So hilft der Staat Familien“. Wähle drei Hilfen. Schreibe zu jeder: Wer bekommt sie? Wofür ist sie? Male ein Bild dazu.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button class="go" id="again">Noch einmal spielen</button>
+      <button class="go alt" id="toPro">${mode==="basis"?"Als ⭐ Profi spielen":"Als Basis spielen"}</button>
+    </div></div>`;
+  $("again").onclick=restart;
+  $("toPro").onclick=()=>setMode(mode==="basis"?"profi":"basis");
+}
+function restart(){order=shuffle(CASES.map((_,k)=>k)); i=0; res=[]; render();}
+function setMode(m){mode=m; $("mBasis").setAttribute("aria-pressed",m==="basis"); $("mProfi").setAttribute("aria-pressed",m==="profi"); restart();}
+$("mBasis").onclick=()=>setMode("basis");
+$("mProfi").onclick=()=>setMode("profi");
+function tab(lex){$("play").hidden=lex; $("lex").hidden=!lex; $("tabPlay").setAttribute("aria-pressed",!lex); $("tabLex").setAttribute("aria-pressed",lex);}
+$("tabPlay").onclick=()=>tab(false); $("tabLex").onclick=()=>tab(true);
+$("lexList").innerHTML = ALL.map(k=>`<article><h3><span aria-hidden="true">${HELPS[k].ic}</span>${HELPS[k].name}</h3><p>${HELPS[k].lex}</p>${HELPS[k].amt?`<p class="amt">${HELPS[k].amt}</p>`:""}</article>`).join("");
+render();
+</script>
